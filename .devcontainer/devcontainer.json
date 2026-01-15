@@ -30,11 +30,6 @@
     ".devcontainer/setup.sh"
   ],
 
-  "postCreateCommand": [
-    "bash",
-    ".devcontainer/post-create.sh"
-  ],
-
   "postStartCommand": [
     "bash",
     ".devcontainer/startup.sh"

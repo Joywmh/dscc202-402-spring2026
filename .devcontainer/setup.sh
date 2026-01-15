@@ -213,8 +213,8 @@ cat >> ~/.bashrc << 'EOF'
 export SPARK_HOME=/opt/spark
 export JAVA_HOME=/usr/local/sdkman/candidates/java/current
 export PATH=$JAVA_HOME/bin:$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
-export PYSPARK_PYTHON=/workspaces/dscc202-402-spring2026/.venv/bin/python3
-export PYSPARK_DRIVER_PYTHON=/workspaces/dscc202-402-spring2026/.venv/bin/python3
+export PYSPARK_PYTHON=/usr/local/bin/python3
+export PYSPARK_DRIVER_PYTHON=/usr/local/bin/python3
 export PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.9.7-src.zip:$PYTHONPATH
 
 # Spark optimization for Codespace

@@ -1,6 +1,6 @@
-# GitHub Codespaces Configuration for DSAS 2025
+# GitHub Codespaces Configuration for DSAS 2026
 
-This directory contains the configuration files for running the DSAS 2025 Module 1 Foundation Labs in GitHub Codespaces.
+This directory contains the configuration files for running the DSAS 2026 Module 1 Foundation Labs in GitHub Codespaces.
 
 ## 🎯 Overview
 

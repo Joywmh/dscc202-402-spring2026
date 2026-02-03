@@ -727,7 +727,7 @@ revenue_by_dow_df = (transactions_df
     .withColumn("day_of_week", date_format(col("dateTime" ),"E"  ))  # Format pattern: "E" for day name
     .groupBy("day_of_week"  )  # Group by which column?
     .agg(sum("totalPrice"  ).alias("total_revenue"))  # Sum which column?
-    .orderBy("total_revenue"  )  # Sort by revenue descending
+    .orderBy(desc("total_revenue")  )  # Sort by revenue descending
 )
 
 display(revenue_by_dow_df)
@@ -1267,7 +1267,3 @@ print(f"✅ Cleaned up working directory: {working_dir}")
 # MAGIC ✅ User-defined functions for custom logic
 # MAGIC
 # MAGIC These skills form the foundation of data engineering and analytics with Apache Spark!
-
-# COMMAND ----------
-
-

@@ -438,8 +438,8 @@ hourly_sales_df = (streaming_df
 hourly_query = (hourly_sales_df
     .writeStream
     .format("delta"  )  # Delta format
-    .outputMode("complete"  )  # Output mode for windowed aggregations
-    .option("checkpointLocation", f"{checkpoint_dir}/hourly_sales" )  # Checkpoint path
+    .outputMode("append"  )  # Output mode for windowed aggregations
+    .option("checkpointLocation", f"{checkpoint_dir}/hourly_verification" )  # Checkpoint path
     .trigger( availableNow=True )  # Trigger type
     .start(f"{working_dir}/hourly_verification"  )  # Output path
 )

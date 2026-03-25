@@ -963,7 +963,7 @@ for query in spark.streams.active:
 # COMMAND ----------
 
 # Optional: Clean up all lab data (uncomment to execute)
-# dbutils.fs.rm(working_dir, recurse=True)
-# spark.sql("DROP TABLE IF EXISTS nyctaxi_catalog.analytics.taxi_trips")
-# spark.sql("DROP TABLE IF EXISTS nyctaxi_catalog.analytics.taxi_trips_gold")
-# print("✅ Lab cleanup complete")
+dbutils.fs.rm(working_dir, recurse=True)
+spark.sql("DROP TABLE IF EXISTS nyctaxi_catalog.analytics.taxi_trips")
+spark.sql("DROP TABLE IF EXISTS nyctaxi_catalog.analytics.taxi_trips_gold")
+print("✅ Lab cleanup complete")

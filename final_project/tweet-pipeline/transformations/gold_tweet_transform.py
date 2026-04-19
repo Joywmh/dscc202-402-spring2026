@@ -139,18 +139,21 @@ def gold_transform():
         .withColumn("predicted_score", col("prediction.score") * 100)
         .withColumn(
             "predicted_sentiment",
-            when(col("predicted_label") == "LABEL_0", "negative")
-            .when(col("predicted_label") == "LABEL_1", "neutral")
-            .when(col("predicted_label") == "LABEL_2", "positive")
+            when(col("predicted_label") == "NEGATIVE", "negative")
+            .when(col("predicted_label") == "POSITIVE", "positive")
             .otherwise(None)
         )
         .withColumn(
             "sentiment_id",
-            when(col("sentiment") == "0", 0).otherwise(1)
+            when(col("sentiment") == "0", 0)
+            .when(col("sentiment") == "4", 1)
+            .otherwise(None)
         )
         .withColumn(
             "predicted_sentiment_id",
-            when(col("predicted_sentiment") == "negative", 0).otherwise(1)
+            when(col("predicted_sentiment") == "negative", 0)
+            .when(col("predicted_sentiment") == "positive", 1)
+            .otherwise(None)
         )
         .select(
             "timestamp",

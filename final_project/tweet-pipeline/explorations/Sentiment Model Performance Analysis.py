@@ -30,6 +30,15 @@
 # - delta.tables.DeltaTable
 # - matplotlib.pyplot
 # - sklearn.metrics (confusion_matrix, classification_report, ConfusionMatrixDisplay)
+from pyspark.sql import functions as F
+import pandas as pd
+import mlflow
+from mlflow.tracking import MlflowClient
+from delta.tables import DeltaTable
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay
+import tempfile
+import os
 
 
 # COMMAND ----------
@@ -45,6 +54,15 @@
 # COMMAND ----------
 
 # TODO: Load gold table
+gold_df = (
+    spark.read.format("delta")
+    .table("tweets_gold")
+    .select("sentiment_id", "predicted_sentiment_id")
+    .dropna()
+)
+
+display(gold_df.limit(10))
+print("Row count:", gold_df.count())
 
 
 # COMMAND ----------
@@ -64,7 +82,24 @@
 # COMMAND ----------
 
 # TODO: Generate classification report
+gold_pd = gold_df.toPandas()
 
+y_true = gold_pd["sentiment_id"]
+y_pred = gold_pd["predicted_sentiment_id"]
+
+target_names = ["Negative", "Positive"]
+
+report = classification_report(
+    y_true,
+    y_pred,
+    target_names=target_names,
+    output_dict=True
+)
+
+report_df = pd.DataFrame(report).transpose()
+display(report_df)
+
+print("Accuracy:", report["accuracy"])
 
 # COMMAND ----------
 
@@ -85,7 +120,13 @@
 # COMMAND ----------
 
 # TODO: Create and display confusion matrix
+cm = confusion_matrix(y_true, y_pred)
 
+fig, ax = plt.subplots(figsize=(6, 6))
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=target_names)
+disp.plot(ax=ax, cmap="Blues", colorbar=False)
+plt.title("Tweet Sentiment Confusion Matrix")
+plt.show()
 
 # COMMAND ----------
 
@@ -109,8 +150,40 @@
 
 # COMMAND ----------
 
-# TODO: Log metrics and artifacts to MLflow
+mlflow.set_registry_uri("databricks-uc")
 
+silver_history = spark.sql("DESCRIBE HISTORY tweets_silver").select("version").collect()
+silver_delta_version = silver_history[0]["version"] if silver_history else None
+
+model_name = "workspace.default.small_sentiment_model"
+model_version = 1
+
+with tempfile.TemporaryDirectory() as tmpdir:
+    cm_path = os.path.join(tmpdir, "confusion_matrix.png")
+    fig.savefig(cm_path, bbox_inches="tight")
+
+    with mlflow.start_run(run_name="sentiment_model_performance_analysis"):
+        # log params
+        mlflow.log_param("model_name", model_name)
+        mlflow.log_param("model_version", model_version)
+        mlflow.log_param("silver_delta_version", silver_delta_version)
+        mlflow.log_param("source_table", "tweets_gold")
+
+        # log main metrics
+        mlflow.log_metric("accuracy", report["accuracy"])
+        mlflow.log_metric("negative_precision", report["Negative"]["precision"])
+        mlflow.log_metric("negative_recall", report["Negative"]["recall"])
+        mlflow.log_metric("negative_f1", report["Negative"]["f1-score"])
+        mlflow.log_metric("positive_precision", report["Positive"]["precision"])
+        mlflow.log_metric("positive_recall", report["Positive"]["recall"])
+        mlflow.log_metric("positive_f1", report["Positive"]["f1-score"])
+
+        # log artifact
+        mlflow.log_artifact(cm_path)
+
+        run_id = mlflow.active_run().info.run_id
+
+print("Logged to MLflow. Run ID:", run_id)
 
 # COMMAND ----------
 
